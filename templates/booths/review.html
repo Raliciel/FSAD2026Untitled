@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Review booth: {{ booth.booth_name }}</h1>
+  <p>Table {{ booth.table_number }} &middot; current status: {{ booth.get_verification_display }}</p>
+  {% if booth.booth_profile_picture %}<img src="{{ booth.booth_profile_picture.url }}" alt="" width="120">{% endif %}
+
+  <h2>Sellers</h2>
+  <ul>{% for s in sellers %}<li>{{ s.seller_name }} ({{ s.user.username }})</li>{% endfor %}</ul>
+
+  <h2>Bank account</h2>
+  <p>{{ booth.bank_account.bank_name }} &middot; {{ booth.bank_account.masked_number }} &middot; {{ booth.bank_account.holder_name }}</p>
+
+  <h2>Blacklist check</h2>
+  {% if hits %}
+    <p><strong>Matches found:</strong></p>
+    <ul>{% for hit in hits %}<li>{{ hit }} &mdash; {{ hit.reason }}</li>{% endfor %}</ul>
+  {% else %}
+    <p>No matches.</p>
+  {% endif %}
+
+  <h2>Decision</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save decision</button>
+  </form>
+  <p><a href="{% url 'catalog:booth_goods_review' booth.pk %}">Review this booth's goods list</a></p>
+{% endblock %}

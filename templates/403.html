@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block content %}
+  <h1>403 &mdash; Access denied</h1>
+  <p>You don't have permission to open this page. The attempt has been recorded.</p>
+  <p><a href="{% url 'catalog:goods_list' %}">Back to goods</a></p>
+{% endblock %}

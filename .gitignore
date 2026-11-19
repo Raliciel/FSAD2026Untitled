@@ -1,0 +1,17 @@
+# secrets / local config
+.env
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# django
+media/
+staticfiles/
+db.sqlite3
+
+# tooling
+.coverage
+htmlcov/

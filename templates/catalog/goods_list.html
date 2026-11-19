@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Browse goods{% endblock %}
+{% block content %}
+  <h1>Find merch at the convention</h1>
+  <form method="get" class="searchbar">
+    {{ form.q }} {{ form.fandom }} {{ form.merch_type }} {{ form.booth }}
+    <button type="submit" class="primary">Search</button>
+    {% if searching %}<a href="{% url 'catalog:goods_list' %}">Clear</a>{% endif %}
+  </form>
+
+  {% if recommended %}
+    <h2>Recommended: popular right now</h2>
+    <div class="cards">
+      {% for g in recommended %}
+        <a class="goods-card" href="{% url 'catalog:goods_detail' g.pk %}">
+          <div class="thumb">{% if g.goods_image %}<img src="{{ g.goods_image.url }}" alt="">{% else %}{{ g.fandom.fandom|first }}{% endif %}</div>
+          <div class="body">
+            <div class="name">{{ g.goods_name }}</div>
+            <div class="meta">{{ g.fandom }} &middot; {{ g.merch_type }}</div>
+            <div class="meta">{% for entry in g.listings %}{{ entry.booth.booth_name }} (table {{ entry.booth.table_number }}){% if not forloop.last %}, {% endif %}{% endfor %}</div>
+            <div class="price">{{ g.goods_price }} THB</div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2>{% if searching %}{{ page.paginator.count }} result{{ page.paginator.count|pluralize }}{% else %}All goods{% endif %}</h2>
+  <table>
+    <tr><th>Name</th><th>Fandom</th><th>Type</th><th class="num">Price (THB)</th><th class="num">Stock</th><th>Booth</th></tr>
+    {% for goods in page %}
+      <tr>
+        <td><a href="{% url 'catalog:goods_detail' goods.pk %}">{{ goods.goods_name }}</a></td>
+        <td>{{ goods.fandom }}</td>
+        <td>{{ goods.merch_type }}</td>
+        <td class="num">{{ goods.goods_price }}</td>
+        <td class="num">{% if goods.stock %}{{ goods.stock }}{% else %}<span class="muted">Sold out</span>{% endif %}</td>
+        <td>{% for entry in goods.listings %}<a href="?booth={{ entry.booth.pk }}">{{ entry.booth.booth_name }}</a> <span class="muted">(table {{ entry.booth.table_number }})</span>{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="empty">
+        {% if searching %}No goods match your search. <a href="{% url 'catalog:goods_list' %}">Show all goods</a>.{% else %}No goods are on sale yet. Check back once booths are approved.{% endif %}
+      </td></tr>
+    {% endfor %}
+  </table>
+
+  {% if page.paginator.num_pages > 1 %}
+    <p>
+      {% if page.has_previous %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page.previous_page_number }}">&larr; Previous</a>{% endif %}
+      Page {{ page.number }} of {{ page.paginator.num_pages }}
+      {% if page.has_next %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page.next_page_number }}">Next &rarr;</a>{% endif %}
+    </p>
+  {% endif %}
+{% endblock %}

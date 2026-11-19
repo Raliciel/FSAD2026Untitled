@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ goods.goods_name }}{% endblock %}
+{% block content %}
+  <h1>{{ goods.goods_name }}</h1>
+  <div class="card">
+    {% if goods.goods_image %}<img src="{{ goods.goods_image.url }}" alt="" width="240">{% endif %}
+    <p>Fandom: <a href="{% url 'catalog:goods_list' %}?fandom={{ goods.fandom.pk }}">{{ goods.fandom }}</a><br>
+       Type: {{ goods.merch_type }}<br>
+       Price: <strong>{{ goods.goods_price }} THB</strong><br>
+       Stock: {% if goods.stock %}{{ goods.stock }}{% else %}<span class="muted">Sold out</span>{% endif %}</p>
+    <h2>Sold at</h2>
+    <ul>
+      {% for entry in goods.listings %}
+        <li><a href="{% url 'catalog:goods_list' %}?booth={{ entry.booth.pk }}">{{ entry.booth.booth_name }}</a> &mdash; table {{ entry.booth.table_number }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <p><a href="{% url 'catalog:goods_list' %}">&larr; Back to goods</a></p>
+{% endblock %}

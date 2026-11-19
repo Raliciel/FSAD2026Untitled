@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My booths{% endblock %}
+{% block content %}
+  <h1>My booths</h1>
+  <table>
+    <tr><th>Booth</th><th>Table</th><th>Status</th><th></th></tr>
+    {% for booth in booths %}
+      <tr>
+        <td>{{ booth.booth_name }}</td>
+        <td>{{ booth.table_number }}</td>
+        <td><span class="badge {{ booth.verification }}">{{ booth.get_verification_display }}</span></td>
+        <td class="actions">
+          {% if booth.verification == "approved" and booth.is_active %}
+            <a class="button" href="{% url 'sales:pos' booth.pk %}">Open POS</a>
+            <a href="{% url 'sales:transaction_list' booth.pk %}">Sales history</a> |
+          {% endif %}
+          <a href="{% url 'catalog:submit_goods' booth.pk %}">Goods list</a> |
+          <a href="{% url 'booths:edit' booth.pk %}">Edit</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="empty">You have no booths. <a href="{% url 'booths:register' %}">Register one</a>.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}

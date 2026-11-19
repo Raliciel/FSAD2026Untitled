@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Goods list: {{ booth.booth_name }}</h1>
+  <p>Booth status: {{ booth.get_verification_display }}. Goods appear to customers once staff approve both the booth and the item.</p>
+
+  <table>
+    <tr><th>Name</th><th>Fandom</th><th>Type</th><th>Price</th><th>Stock</th><th>Status</th></tr>
+    {% for entry in entries %}
+      <tr>
+        <td>{{ entry.goods.goods_name }}</td>
+        <td>{{ entry.goods.fandom }}</td>
+        <td>{{ entry.goods.merch_type }}</td>
+        <td>{{ entry.goods.goods_price }}</td>
+        <td>{{ entry.goods.stock }}</td>
+        <td><span class="badge {{ entry.goods.verification }}">{{ entry.goods.get_verification_display }}</span></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6">No goods submitted yet.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Add goods</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit goods</button>
+  </form>
+{% endblock %}

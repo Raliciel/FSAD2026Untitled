@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Sales &middot; {{ booth.booth_name }}{% endblock %}
+{% block content %}
+  <h1>Sales history: {{ booth.booth_name }}</h1>
+  <p>
+    {% if booth.verification == "approved" %}<a class="button" href="{% url 'sales:pos' booth.pk %}">Back to POS</a>{% endif %}
+    <strong>{{ completed_count }}</strong> completed sale{{ completed_count|pluralize }} &middot;
+    revenue <strong>{{ revenue|floatformat:2 }} THB</strong> (voided sales excluded)
+  </p>
+  <table>
+    <tr><th>Invoice</th><th>Time</th><th>Items</th><th>Payment</th><th class="num">Total</th><th>Status</th></tr>
+    {% for tx in transactions %}
+      <tr>
+        <td><a href="{% url 'sales:transaction_detail' booth.pk tx.pk %}">{{ tx.invoice_id }}</a></td>
+        <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+        <td>{% for item in tx.items.all %}{{ item.quantity }} &times; {{ item.goods_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        <td>{{ tx.get_payment_method_display }}</td>
+        <td class="num">{{ tx.total_amount }}</td>
+        <td><span class="badge {{ tx.status }}">{{ tx.get_status_display }}</span></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="6" class="empty">No sales yet.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}

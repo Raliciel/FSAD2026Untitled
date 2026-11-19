@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Booth reviews: {{ status }}</h1>
+  <p>
+    <a href="?status=pending">Pending</a> |
+    <a href="?status=approved">Approved</a> |
+    <a href="?status=rejected">Rejected</a>
+  </p>
+  <table>
+    <tr><th>Booth</th><th>Table</th><th>Submitted</th><th></th></tr>
+    {% for booth in booths %}
+      <tr>
+        <td>{{ booth.booth_name }}</td>
+        <td>{{ booth.table_number }}</td>
+        <td>{{ booth.created_at|date:"Y-m-d H:i" }}</td>
+        <td>
+          <a href="{% url 'booths:review' booth.pk %}">Review booth</a> |
+          <a href="{% url 'catalog:booth_goods_review' booth.pk %}">Review goods</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">Nothing here.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}

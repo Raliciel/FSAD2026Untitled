@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}POS &middot; {{ booth.booth_name }}{% endblock %}
+{% block content %}
+  <h1>Point of sale: {{ booth.booth_name }} <small>table {{ booth.table_number }}</small></h1>
+  <p><a href="{% url 'sales:transaction_list' booth.pk %}">Sales history</a></p>
+
+  <div class="pos">
+    <section>
+      <h2>Goods for sale</h2>
+      <table>
+        <tr><th>Item</th><th>Fandom</th><th class="num">Price</th><th class="num">Stock</th><th></th></tr>
+        {% for g in goods %}
+          <tr>
+            <td>{{ g.goods_name }}</td>
+            <td>{{ g.fandom }}</td>
+            <td class="num">{{ g.goods_price }}</td>
+            <td class="num">{{ g.stock }}</td>
+            <td>
+              {% if g.stock %}
+                <form method="post" action="{% url 'sales:cart_add' booth.pk %}" class="inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="goods_id" value="{{ g.pk }}">
+                  <input type="number" name="quantity" value="1" min="1" max="{{ g.stock }}" class="qty" aria-label="Quantity">
+                  <button type="submit">Add</button>
+                </form>
+              {% else %}<span class="muted">Sold out</span>{% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty">No approved goods yet. Staff must approve items before they can be sold.</td></tr>
+        {% endfor %}
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Cart</h2>
+      <table>
+        <tr><th>Item</th><th class="num">Qty</th><th class="num">Line</th><th></th></tr>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.goods.goods_name }}</td>
+            <td class="num">{{ item.quantity }}</td>
+            <td class="num">{{ item.line_total }}</td>
+            <td>
+              <form method="post" action="{% url 'sales:cart_remove' booth.pk item.goods.pk %}" class="inline">
+                {% csrf_token %}<button type="submit" class="link">Remove</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="empty">Cart is empty.</td></tr>
+        {% endfor %}
+        <tr class="total"><td>Total</td><td></td><td class="num">{{ total }} THB</td><td></td></tr>
+      </table>
+      {% if items %}
+        <form method="post" action="{% url 'sales:checkout' booth.pk %}">
+          {% csrf_token %}
+          <p>
+            {% for value, label in payment_methods %}
+              <label><input type="radio" name="payment_method" value="{{ value }}" {% if forloop.first %}checked{% endif %}> {{ label }}</label>
+            {% endfor %}
+          </p>
+          <button type="submit" class="primary">Checkout</button>
+        </form>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

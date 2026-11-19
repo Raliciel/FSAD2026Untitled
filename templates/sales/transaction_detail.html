@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ tx.invoice_id }}{% endblock %}
+{% block content %}
+  <h1>Invoice {{ tx.invoice_id }} <span class="badge {{ tx.status }}">{{ tx.get_status_display }}</span></h1>
+  <p>{{ booth.booth_name }} &middot; {{ tx.created_at|date:"Y-m-d H:i" }} &middot; {{ tx.get_payment_method_display }} &middot; by {{ tx.created_by }}</p>
+  {% if tx.voided_at %}
+    <p class="muted">Voided by {{ tx.voided_by }} at {{ tx.voided_at|date:"Y-m-d H:i" }}. Stock was returned.</p>
+  {% endif %}
+
+  <table>
+    <tr><th>Item</th><th class="num">Unit price</th><th class="num">Qty</th><th class="num">Line total</th></tr>
+    {% for item in items %}
+      <tr>
+        <td>{{ item.goods_name }}</td>
+        <td class="num">{{ item.unit_price }}</td>
+        <td class="num">{{ item.quantity }}</td>
+        <td class="num">{{ item.line_total }}</td>
+      </tr>
+    {% endfor %}
+    <tr class="total"><td>Total</td><td></td><td></td><td class="num">{{ tx.total_amount }} THB</td></tr>
+  </table>
+
+  <p>
+    {% if tx.status == "completed" %}
+      <form method="post" action="{% url 'sales:transaction_void' booth.pk tx.pk %}" class="inline"
+            onsubmit="return confirm('Void {{ tx.invoice_id }} and return the stock?');">
+        {% csrf_token %}<button type="submit" class="danger">Void transaction</button>
+      </form>
+    {% endif %}
+    {% if booth.verification == "approved" %}<a class="button" href="{% url 'sales:pos' booth.pk %}">New sale</a>{% endif %}
+    <a href="{% url 'sales:transaction_list' booth.pk %}">Sales history</a>
+  </p>
+{% endblock %}

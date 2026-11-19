@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Sellers</h1>
+  <table>
+    <tr><th>Name</th><th>Username</th><th>Email</th><th>Active</th><th></th></tr>
+    {% for seller in sellers %}
+      <tr>
+        <td>{{ seller.seller_name }}</td>
+        <td>{{ seller.user.username }}</td>
+        <td>{{ seller.user.email }}</td>
+        <td>{{ seller.user.is_active|yesno }}</td>
+        <td><a href="{% url 'accounts:user_edit' seller.pk %}">Edit</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No sellers yet.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}
